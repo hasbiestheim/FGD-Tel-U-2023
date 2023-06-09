@@ -1,0 +1,341 @@
+[
+    {
+        "id": "e40961b1.ad649",
+        "type": "tab",
+        "label": "Weather",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "c773303.7246cd",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "Parse message",
+        "func": "var msg433 = {};\nmsg.payload = msg.payload.replace(/(\\r\\n|\\n|\\r)/gm,\"\");\nvar parts433 = msg.payload.split(\";\");\n\nmsg433.p1 = parts433[0];\nmsg433.p2 = parts433[1];\nmsg433.name = parts433[2];\nfor (var i=3; i<parts433.length; i++) {\n    var keyvalue = parts433[i].split(\"=\");\n    if (keyvalue.length===2) {\n        msg433[keyvalue[0]] = keyvalue[1];\n    }\n}\n\nmsg.msg433 = msg433;\nmsg.topic=\"rflink\";\n\nreturn msg;\n\n/*\n\n// So firstly a generic means of getting incoming items into an object\n\nvar the433 = {};\nmsg.payload = msg.payload.replace(/(\\r\\n|\\n|\\r)/gm,\"\");\nnode.warn(msg.payload);\nvar parts433 = msg.payload.split(\";\");\n\nthe433.p1 = parts433[0];\nthe433.p2 = parts433[1];\nthe433.name = parts433[2];\n\nvar a = 3;\nwhile (a < parts433.length) {\n    var bits433 = parts433[a].split(\"=\");\n    switch (bits433[0]) {\n        case \"ID\": the433.id = bits433[1]; break;\n        case \"SWITCH\": the433.switch = bits433[1]; break;\n        case \"CMD\": the433.cmd = bits433[1]; break;\n        case \"SET_LEVEL\": the433.set_level = parseInt(bits433[1], 10); break;\n        case \"TEMP\": the433.temp = parseInt(bits433[1], 16) / 10; break;\n        case \"HUM\": the433.hum = parseInt(bits433[1], 10); break;\n        case \"BARO\": the433.baro = parseInt(bits433[1], 16); break;\n        case \"HSTATUS\": the433.hstatus = parseInt(bits433[1], 10); break;\n        case \"BFORECAST\": the433.bforecast = parseInt(bits433[1], 10); break;\n        case \"UV\": the433.uv = parseInt(bits433[1], 16); break;\n        case \"LUX\": the433.lux = parseInt(bits433[1], 16); break;\n        case \"BAT\": the433.bat = bits433[1]; break;\n        case \"RAIN\": the433.rain = parseInt(bits433[1], 16) / 10; break;\n        case \"RAIN\": the433.rainrate = parseInt(bits433[1], 16) / 10; break;\n        case \"WINSP\": the433.winsp = parseInt(bits433[1], 16) / 10; break;\n        case \"AWINSP\": the433.awinsp = parseInt(bits433[1], 16) / 10; break;\n        case \"WINGS\": the433.wings = parseInt(bits433[1], 16); break;\n        case \"WINDIR\": the433.windir = parseInt(bits433[1], 10); break;\n        case \"WINCHL\": the433.winchl = parseInt(bits433[1], 16); break;\n        case \"WINTMP\": the433.wintmp = parseInt(bits433[1], 16); break;\n        case \"CHIME\": the433.chime = parseInt(bits433[1], 10); break;\n        case \"SMOKEALERT\": the433.smokealert = bits433[1]; break;\n        case \"PIR\": the433.pir = bits433[1]; break;\n        case \"CO2\": the433.co2 = parseInt(bits433[1], 10); break;\n        case \"SOUND\": the433.sound = parseInt(bits433[1], 10); break;\n        case \"KWATT\": the433.kwatt = parseInt(bits433[1], 16); break;\n        case \"WATT\": the433.watt = parseInt(bits433[1], 16); break;\n        case \"CURRENT\": the433.current = parseInt(bits433[1], 10); break;\n        case \"CURRENT2\": the433.current2 = parseInt(bits433[1], 10); break;\n        case \"CURRENT3\": the433.current3 = parseInt(bits433[1], 10); break;\n        case \"DIST\": the433.dist = parseInt(bits433[1], 10); break;\n        case \"METER\": the433.meter = parseInt(bits433[1], 10); break;\n        case \"VOLT\": the433.volt = parseInt(bits433[1], 10); break;\n        case \"RGBW\": the433.rgbc = parseInt(bits433[1].substring(0, 2), 16);\n            the433.rgbw = parseInt(bits433[1].substring(2, 4), 16); break;\n    }\n    a++;\n}\n\n// SO - the above is general... here is my specific setup for temporarily displaying\n// the Acurite info\nif ((the433.p1 == \"20\") && (the433.name == \"Acurite\") && (the433.id == \"c826\")) {\n    if (typeof the433.temp !== 'undefined') temp = the433.temp;\n    if (typeof the433.hum !== 'undefined') hum = the433.hum;\n    if (typeof the433.bat !== 'undefined') bat = the433.bat;\n    if (typeof the433.rain !== 'undefined') rain = the433.rain;\n    if (typeof the433.winsp !== 'undefined') winsp = the433.winsp;\n    if (typeof the433.windir !== 'undefined') windir = the433.windir;\n\n    node.warn(\"Temperature: \" + temp + \"c\");\n    node.warn(\"Humidity: \" + hum + \"%\");\n    node.warn(\"Battery: \" + bat);\n    node.warn(\"Rain: \" + rain + \"mm\");\n    node.warn(\"Wind Speed: \" + winsp + \"km/h\");\n    node.warn(\"Wind Dir: \" + (windir * 22.5) + \" degrees\");\n}\n\n*/",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 322,
+        "y": 105,
+        "wires": [
+            [
+                "6dee95b8.6ef82c"
+            ]
+        ]
+    },
+    {
+        "id": "6dee95b8.6ef82c",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "TEMP conversion",
+        "func": "if (msg.msg433.TEMP!==undefined) {\n    if (parseInt(msg.msg433.TEMP, 16) >= 0x8000) {\n        msg.msg433.TEMP = (parseInt(msg.msg433.TEMP, 16) & 0x7FFF) / 10 * -1;\n    } else {\n        msg.msg433.TEMP = parseInt(msg.msg433.TEMP, 16) / 10;\n    }\n} else msg.msg433.TEMP=-999.0;\nnode.status({fill:\"blue\",shape:\"ring\",text: msg.msg433.TEMP });\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 329,
+        "y": 178,
+        "wires": [
+            [
+                "7afe7037.54ce3"
+            ]
+        ]
+    },
+    {
+        "id": "7afe7037.54ce3",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "HUM conversion",
+        "func": "if (msg.msg433.HUM!==undefined) {\n    msg.msg433.HUM = parseInt(msg.msg433.HUM, 10);\n}\nelse msg.msg433.HUM=-999.0;\nnode.status({fill:\"blue\",shape:\"ring\",text: msg.msg433.HUM });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 318,
+        "y": 239,
+        "wires": [
+            [
+                "7cb270d7.c88b1"
+            ]
+        ]
+    },
+    {
+        "id": "7cb270d7.c88b1",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "ID conversion",
+        "func": "if (msg.msg433.ID!==undefined) {\n    msg.msg433.ID = parseInt(msg.msg433.ID, 16);\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 319,
+        "y": 298,
+        "wires": [
+            [
+                "b9ba4380.32c7"
+            ]
+        ]
+    },
+    {
+        "id": "b9ba4380.32c7",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "RAIN conversion",
+        "func": "var global_name = \"rainstat\";   // Name of the global variable\n\nvar rainstat = global.get(global_name);\n\n msg.msg433.RAINRATE = -999;\n\nif (msg.msg433.RAIN!==undefined) {\n    msg.msg433.RAIN = parseInt(msg.msg433.RAIN, 16) /10;\n    msg.msg433.RAINRATE = msg.msg433.RAIN - rainstat;\n    global.set(global_name,msg.msg433.RAIN);\n} else msg.msg433.RAIN=-999.0;\nnode.status({fill:\"blue\",shape:\"ring\",text: rainstat });\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 330,
+        "y": 351,
+        "wires": [
+            [
+                "1d9e07b2.0f0f58"
+            ]
+        ]
+    },
+    {
+        "id": "1d9e07b2.0f0f58",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "WINSP conversion",
+        "func": "if (msg.msg433.WINSP!==undefined) {\n    msg.msg433.WINSP = parseInt(msg.msg433.WINSP, 16) /10;\n} else msg.msg433.WINSP=0;\nnode.status({fill:\"blue\",shape:\"ring\",text: msg.msg433.WINSP });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 331,
+        "y": 413,
+        "wires": [
+            [
+                "cd3cb6d2.640358"
+            ]
+        ]
+    },
+    {
+        "id": "cd3cb6d2.640358",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "WINGS conversion",
+        "func": "if (msg.msg433.WINGS!==undefined) {\n    msg.msg433.WINGS  = parseInt(msg.msg433.WINGS , 16)/10;\n}\nelse msg.msg433.WINGS=0;\nnode.status({fill:\"blue\",shape:\"ring\",text: msg.msg433.WINGS });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 331,
+        "y": 483,
+        "wires": [
+            [
+                "47f9b92f.6ec698"
+            ]
+        ]
+    },
+    {
+        "id": "47f9b92f.6ec698",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "WINDIR conversion",
+        "func": "if (msg.msg433.WINDIR!==undefined) {\n    msg.msg433.WINDIR  = parseInt(msg.msg433.WINDIR , 10) * 22.5;\n}\nelse msg.msg433.WINDIR=-999.0;\nnode.status({fill:\"blue\",shape:\"ring\",text: msg.msg433.WINDIR });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 334,
+        "y": 549,
+        "wires": [
+            [
+                "b75fde7b.7dca"
+            ]
+        ]
+    },
+    {
+        "id": "b75fde7b.7dca",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "SWITCH conversion",
+        "func": "if (msg.msg433.SWITCH !==undefined) {\n    msg.msg433.SWITCH   = parseInt(msg.msg433.SWITCH  , 16);\n}\nelse msg.msg433.SWITCH=-999.0;\nnode.status({fill:\"blue\",shape:\"ring\",text: msg.msg433.SWITCH });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 342,
+        "y": 616,
+        "wires": [
+            [
+                "84795aea.3a1228"
+            ]
+        ]
+    },
+    {
+        "id": "84795aea.3a1228",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "CHIME conversion",
+        "func": "if (msg.msg433.CHIME  !==undefined) {\n    msg.msg433.CHIME    = parseInt(msg.msg433.CHIME   , 16);\n} else msg.msg433.CHIME=-999.0;\nnode.status({fill:\"blue\",shape:\"ring\",text: msg.msg433.CHIME });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 331,
+        "y": 682,
+        "wires": [
+            [
+                "3b4359cd.bb59b6"
+            ]
+        ]
+    },
+    {
+        "id": "8dba2f7d.abaa8",
+        "type": "change",
+        "z": "e40961b1.ad649",
+        "name": "Set Topic",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "rflink",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 501.6328125,
+        "y": 752.3046875,
+        "wires": [
+            [
+                "508256b3.31cd68",
+                "fab8599c.3ad538"
+            ]
+        ]
+    },
+    {
+        "id": "508256b3.31cd68",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "Weather Station",
+        "func": "msg.payload = {\n    name: msg.msg433.name,\n    temp: msg.msg433.TEMP,\n    wind: msg.msg433.WINSP,\n    gust: msg.msg433.WINGS,\n    direction: msg.msg433.WINDIR,\n    rain: msg.msg433.RAIN,\n    rainrate: msg.msg433.RAINRATE,\n    humidity: msg.msg433.HUM,\n    battery: msg.msg433.BAT\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 678,
+        "y": 752,
+        "wires": [
+            [
+                "21825ef.819c2a2"
+            ]
+        ]
+    },
+    {
+        "id": "3b4359cd.bb59b6",
+        "type": "function",
+        "z": "e40961b1.ad649",
+        "name": "BAT conversion",
+        "func": "if (msg.msg433.BAT === undefined) msg.msg433.BAT=\"\";\nnode.status({fill:\"blue\",shape:\"ring\",text: msg.msg433.BAT });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 321,
+        "y": 750,
+        "wires": [
+            [
+                "8dba2f7d.abaa8"
+            ]
+        ]
+    },
+    {
+        "id": "fe1dcc9.31ead3",
+        "type": "inject",
+        "z": "e40961b1.ad649",
+        "name": "",
+        "topic": "",
+        "payload": "20;02;DKW2012;ID=0043;TEMP=8010;HUM=57;WINSP=0031;WINGS=0049;RAIN=0c22;WINDIR=0004;BAT=OK;",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 97,
+        "y": 142,
+        "wires": [
+            [
+                "c773303.7246cd"
+            ]
+        ]
+    },
+    {
+        "id": "fab8599c.3ad538",
+        "type": "debug",
+        "z": "e40961b1.ad649",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "x": 695,
+        "y": 833,
+        "wires": []
+    },
+    {
+        "id": "21825ef.819c2a2",
+        "type": "influxdb out",
+        "z": "e40961b1.ad649",
+        "influxdb": "373fa459.54e07c",
+        "name": "Weather",
+        "measurement": "stations",
+        "precision": "s",
+        "retentionPolicy": "",
+        "x": 1063,
+        "y": 754,
+        "wires": []
+    },
+    {
+        "id": "a8e28186.510a6",
+        "type": "mqtt in",
+        "z": "e40961b1.ad649",
+        "name": "",
+        "topic": "RFLINK_REC",
+        "qos": "0",
+        "broker": "5c3a4e27.a99f9",
+        "x": 96,
+        "y": 81,
+        "wires": [
+            [
+                "c773303.7246cd",
+                "f9901742.eef988"
+            ]
+        ]
+    },
+    {
+        "id": "f9901742.eef988",
+        "type": "debug",
+        "z": "e40961b1.ad649",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 312,
+        "y": 55,
+        "wires": []
+    },
+    {
+        "id": "373fa459.54e07c",
+        "type": "influxdb",
+        "z": "",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "WEATHER",
+        "name": "Weather",
+        "usetls": false,
+        "tls": ""
+    },
+    {
+        "id": "5c3a4e27.a99f9",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "",
+        "broker": "192.168.0.203",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]

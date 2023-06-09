@@ -1,0 +1,303 @@
+[
+    {
+        "id": "d5d3ccff.e1c68",
+        "type": "tab",
+        "label": "Influxdb Tutorial ",
+        "disabled": false,
+        "info": "Prescient Devices, Inc.\n\nhttps://prescientdevices.com/"
+    },
+    {
+        "id": "e9e85efe.846d4",
+        "type": "inject",
+        "z": "d5d3ccff.e1c68",
+        "name": "datapoint point",
+        "props": [
+            {
+                "p": "value",
+                "v": "50* $random()",
+                "vt": "jsonata"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 260,
+        "y": 120,
+        "wires": [
+            [
+                "702adb54.e42fc4"
+            ]
+        ]
+    },
+    {
+        "id": "33e8c5f5.e354ba",
+        "type": "influxdb out",
+        "z": "d5d3ccff.e1c68",
+        "influxdb": "b27e5ece994e5da6",
+        "name": "Test Influx",
+        "measurement": "sensordata",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 680,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "702adb54.e42fc4",
+        "type": "change",
+        "z": "d5d3ccff.e1c68",
+        "name": "Format",
+        "rules": [
+            {
+                "t": "set",
+                "p": "tags.type",
+                "pt": "msg",
+                "to": "sensor1",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "fields.timestamp",
+                "pt": "msg",
+                "to": "",
+                "tot": "date"
+            },
+            {
+                "t": "set",
+                "p": "fields.value",
+                "pt": "msg",
+                "to": "value",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$append(fields,tags)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 480,
+        "y": 120,
+        "wires": [
+            [
+                "33e8c5f5.e354ba"
+            ]
+        ]
+    },
+    {
+        "id": "1b8fc0b1.80700f",
+        "type": "comment",
+        "z": "d5d3ccff.e1c68",
+        "name": "Write Operation",
+        "info": "",
+        "x": 160,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "302848b7.eaa4b8",
+        "type": "comment",
+        "z": "d5d3ccff.e1c68",
+        "name": "Read Operation",
+        "info": "",
+        "x": 160,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "f1fb7bb4.c7d158",
+        "type": "inject",
+        "z": "d5d3ccff.e1c68",
+        "name": "Fetch",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 230,
+        "y": 360,
+        "wires": [
+            [
+                "2a8a89d7.892976"
+            ]
+        ]
+    },
+    {
+        "id": "2a8a89d7.892976",
+        "type": "function",
+        "z": "d5d3ccff.e1c68",
+        "name": "Query",
+        "func": "msg.query='select * from \"sensordata\"';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 360,
+        "wires": [
+            [
+                "94d2869f.b16008"
+            ]
+        ]
+    },
+    {
+        "id": "94d2869f.b16008",
+        "type": "influxdb in",
+        "z": "d5d3ccff.e1c68",
+        "influxdb": "b27e5ece994e5da6",
+        "name": "Read",
+        "query": "",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "organisation",
+        "x": 670,
+        "y": 360,
+        "wires": [
+            [
+                "4d0b13e7.597c2c"
+            ]
+        ]
+    },
+    {
+        "id": "4d0b13e7.597c2c",
+        "type": "debug",
+        "z": "d5d3ccff.e1c68",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 950,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "9bfde084.ac342",
+        "type": "comment",
+        "z": "d5d3ccff.e1c68",
+        "name": "Dashboard",
+        "info": "Dashboard",
+        "x": 140,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "788a315d.80c89",
+        "type": "inject",
+        "z": "d5d3ccff.e1c68",
+        "name": "Fetch",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 230,
+        "y": 580,
+        "wires": [
+            [
+                "50ba8968.4997a8"
+            ]
+        ]
+    },
+    {
+        "id": "50ba8968.4997a8",
+        "type": "function",
+        "z": "d5d3ccff.e1c68",
+        "name": "Query",
+        "func": "msg.query='select * from \"sensordata\"';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 580,
+        "wires": [
+            [
+                "7a0d70a5.01abb"
+            ]
+        ]
+    },
+    {
+        "id": "7a0d70a5.01abb",
+        "type": "influxdb in",
+        "z": "d5d3ccff.e1c68",
+        "influxdb": "b27e5ece994e5da6",
+        "name": "Read",
+        "query": "",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "organisation",
+        "x": 670,
+        "y": 580,
+        "wires": [
+            [
+                "75f856bf.297c18"
+            ]
+        ]
+    },
+    {
+        "id": "75f856bf.297c18",
+        "type": "function",
+        "z": "d5d3ccff.e1c68",
+        "name": "",
+        "func": "let temp=[]\nmsg.payload.forEach(function (value,index) {\ntemp.push(value)\n});\nmsg.paylod=temp\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b27e5ece994e5da6",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "sensordata",
+        "name": "Database",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    }
+]

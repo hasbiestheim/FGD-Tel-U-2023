@@ -1,0 +1,194 @@
+[
+    {
+        "id": "95b35ca7b70b8883",
+        "type": "tab",
+        "label": "IoT Dashboard",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "9e6c9e96d220047b",
+        "type": "mqtt in",
+        "z": "95b35ca7b70b8883",
+        "name": "",
+        "topic": "esp32/sensor/dhtsensor",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "c2b66e1258395fe4",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 410,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c5afd137d188c865",
+        "type": "inject",
+        "z": "95b35ca7b70b8883",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "sensor1;35;",
+        "payloadType": "str",
+        "x": 410,
+        "y": 340,
+        "wires": [
+            [
+                "d36f8a39f6ebb56d"
+            ]
+        ]
+    },
+    {
+        "id": "452319a639b83892",
+        "type": "debug",
+        "z": "95b35ca7b70b8883",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 910,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "d36f8a39f6ebb56d",
+        "type": "function",
+        "z": "95b35ca7b70b8883",
+        "name": "Parse message",
+        "func": "var msgmqtt = {};\nmsg.payload = msg.payload.replace(/(\\r\\n|\\n|\\r)/gm,\"\");\nvar msgmqttpart = msg.payload.split(\";\");\n\nmsgmqtt.name = msgmqttpart[0];\nmsgmqtt.value = msgmqttpart[1];\n\nmsg.msgmqtt = msgmqtt;\nmsg.topic=\"sensormqtt\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 340,
+        "wires": [
+            [
+                "8ecef9cd9a77c731"
+            ]
+        ]
+    },
+    {
+        "id": "8ecef9cd9a77c731",
+        "type": "change",
+        "z": "95b35ca7b70b8883",
+        "name": "Format",
+        "rules": [
+            {
+                "t": "set",
+                "p": "tags.type",
+                "pt": "msg",
+                "to": "msgmqtt.name",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "fields.value",
+                "pt": "msg",
+                "to": "$number(msg.msgmqtt.value)",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$append(fields,tags)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 780,
+        "y": 340,
+        "wires": [
+            [
+                "452319a639b83892",
+                "8621ddbe4e867487"
+            ]
+        ]
+    },
+    {
+        "id": "8621ddbe4e867487",
+        "type": "influxdb out",
+        "z": "95b35ca7b70b8883",
+        "influxdb": "b27e5ece994e5da6",
+        "name": "Influxdb",
+        "measurement": "sensordata",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 900,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "c2b66e1258395fe4",
+        "type": "mqtt-broker",
+        "name": "broker.emqx.io",
+        "broker": "broker.emqx.io",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "b27e5ece994e5da6",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "sensordata",
+        "name": "Database",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    }
+]
